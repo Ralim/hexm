@@ -28,16 +28,18 @@ func main() {
 	outputMemory := gohex.NewMemory()
 	//Parse all input files into virtual memory space
 	for i, inputFilePath := range inputFiles {
-		fmt.Printf("Loading file %d\r\n", i+1)
-		file, err := os.Open(inputFilePath)
-		if err != nil {
-			panic(err)
-		}
-		defer file.Close()
 		mem := gohex.NewMemory()
-		err = mem.ParseIntelHex(file)
-		if err != nil {
-			panic(err)
+		{
+			fmt.Printf("Loading file %d\r\n", i+1)
+			file, err := os.Open(inputFilePath)
+			if err != nil {
+				panic(err)
+			}
+			defer file.Close()
+			err = mem.ParseIntelHex(file)
+			if err != nil {
+				panic(err)
+			}
 		}
 		existingSegments := outputMemory.GetDataSegments()
 
@@ -56,9 +58,32 @@ func main() {
 			}
 		}
 	}
+	// Now we want to write out the file, if its hex then we can use the hex writer, otherwise we will want to persist it out to bin
+	outputHex, binaryStart := parseFileTypeAndStart(outputFile)
+	file, err := os.Create(outputFile)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
 
-	// bytes := mem.ToBinary(0xFFF0, 128, 0x00)
-	// fmt.Printf("%v\n", bytes)
+	if outputHex {
+		outputMemory.DumpIntelHex(file, 32)
+	} else {
+		if binaryStart == -1 {
+			binaryStart = 0
+		}
+		//We want to write a binary file starting at the specified location, and padding all gaps
+		existingSegments := outputMemory.GetDataSegments()
+		//Write out each section
+		for i, section := range existingSegments {
+			start := section.Address - uint32(binaryStart)
+			fmt.Printf("Writing %v bytes @ %08X for section %d\r\n", len(section.Data), start, i+1)
+			_, err = file.WriteAt(section.Data, int64(start))
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
 }
 
 func userConfirmOverlap(seg gohex.DataSegment, source string) bool {
@@ -94,6 +119,19 @@ func validateFiles(inputs []string, output string) error {
 		return err
 	}
 	return nil
+}
+
+// parseFileTypeAndStart returns if the path specifies a hex file or not, and if its a binary if it contains a starting address
+func parseFileTypeAndStart(path string) (isHexFile bool, binaryStart int64) {
+	extension := filepath.Ext(path)
+	if extension == ".hex" {
+		return true, -1
+	}
+	if extension == ".bin" {
+		return false, -1
+	}
+
+	return false, 0 //TODO
 }
 func validateFile(path string, shouldExist bool) error {
 	extension := filepath.Ext(path)
