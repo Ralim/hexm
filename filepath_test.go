@@ -2,8 +2,31 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"testing"
 )
+
+func TestValidateFiles(t *testing.T) {
+	//Testing input file that exists, one that doesnt
+	//Output file that does, output file that doesnt
+	file_exists_hex, err := os.CreateTemp("", "test_*_.hex")
+	if err != nil {
+		t.Error(err)
+	}
+	file_exists_hex.Close()
+	defer os.Remove(file_exists_hex.Name())
+	file_exists_bin, err := os.CreateTemp("", "test_*_.bin")
+	if err != nil {
+		t.Error(err)
+	}
+	file_exists_bin.Close()
+	defer os.Remove(file_exists_bin.Name())
+	err = validateFiles([]string{file_exists_bin.Name(), file_exists_hex.Name()}, "nope.bin")
+	if err != nil {
+		t.Error(err)
+	}
+
+}
 
 func TestParseFileTypeAndStart(t *testing.T) {
 	//testing that it handles basic bin and hex files correctly

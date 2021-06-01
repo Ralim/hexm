@@ -63,9 +63,9 @@ func parseFileTypeAndStart(path string) (isHexFile bool, binaryStart uint32, err
 	return false, 0, fmt.Errorf("could not parse file type from %s", path)
 }
 func validateFile(path string, shouldExist bool) error {
-	extension := filepath.Ext(path)
-	if !(extension == ".hex" || extension == ".bin") {
-		return fmt.Errorf("invalid file format %s", path)
+	_, _, err := parseFileTypeAndStart(path)
+	if err != nil {
+		return fmt.Errorf("invalid file format %s => %v", path, err)
 	}
 	if _, err := os.Stat(path); err == nil {
 		if shouldExist {
