@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/marcinbor85/gohex"
@@ -13,7 +12,7 @@ import (
 
 func main() {
 	//As we only have trivial command line args, simpler to custom parse
-	inputFiles, outputFile, err := parseArgs(os.Args)
+	inputFiles, outputFile, err := parseArgs(os.Args[1:])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error %v\n", err)
 		return
@@ -59,7 +58,10 @@ func main() {
 		}
 	}
 	// Now we want to write out the file, if its hex then we can use the hex writer, otherwise we will want to persist it out to bin
-	outputHex, binaryStart := parseFileTypeAndStart(outputFile)
+	outputHex, binaryStart, err := parseFileTypeAndStart(outputFile)
+	if err != nil {
+		panic(err)
+	}
 	file, err := os.Create(outputFile)
 	if err != nil {
 		panic(err)
@@ -69,9 +71,6 @@ func main() {
 	if outputHex {
 		outputMemory.DumpIntelHex(file, 32)
 	} else {
-		if binaryStart == -1 {
-			binaryStart = 0
-		}
 		//We want to write a binary file starting at the specified location, and padding all gaps
 		existingSegments := outputMemory.GetDataSegments()
 		//Write out each section
@@ -96,69 +95,6 @@ func segmentOverlaps(seg gohex.DataSegment, seg2 gohex.DataSegment) bool {
 		return true
 	}
 	return false
-}
-
-//Splits provided args into input files and the output file
-func parseArgs(args []string) ([]string, string, error) {
-	filePaths := args[1:]
-	if len(filePaths) < 2 {
-		return nil, "", fmt.Errorf("not enough files specified")
-	}
-	inputFiles := filePaths[:len(filePaths)-1]
-	outputFiles := filePaths[len(filePaths)-1]
-	return inputFiles, outputFiles, nil
-}
-
-func validateFiles(inputs []string, output string) error {
-	for _, file := range inputs {
-		if err := validateFile(file, true); err != nil {
-			return err
-		}
-	}
-	if err := validateFile(output, false); err != nil {
-		return err
-	}
-	return nil
-}
-
-// parseFileTypeAndStart returns if the path specifies a hex file or not, and if its a binary if it contains a starting address
-func parseFileTypeAndStart(path string) (isHexFile bool, binaryStart int64) {
-	extension := filepath.Ext(path)
-	if extension == ".hex" {
-		return true, -1
-	}
-	if extension == ".bin" {
-		return false, -1
-	}
-
-	return false, 0 //TODO
-}
-func validateFile(path string, shouldExist bool) error {
-	extension := filepath.Ext(path)
-	if !(extension == ".hex" || extension == ".bin") {
-		return fmt.Errorf("invalid file format %s", path)
-	}
-	if _, err := os.Stat(path); err == nil {
-		if shouldExist {
-			return nil
-		} else {
-			//Prompt overwrite
-			if userConfirm(fmt.Sprintf("Overwrite %s?", path)) {
-				return nil
-			} else {
-				return fmt.Errorf("not overwriting %s", path)
-			}
-		}
-
-	} else if os.IsNotExist(err) {
-		if shouldExist {
-			return fmt.Errorf("file does not exist %s", path)
-		} else {
-			return nil
-		}
-	} else {
-		return fmt.Errorf("file %s raised IO error %v", path, err)
-	}
 }
 
 func userNumberInput(prompt string) uint64 {
