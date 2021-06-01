@@ -1,5 +1,6 @@
 # hexm
-CLI tool for working with intel hex and binary files (Merge)
+CLI tool for working with intel hex and binary files.
+Merge and convert
 
 ## Features
 
@@ -7,4 +8,6 @@ CLI tool for working with intel hex and binary files (Merge)
 * Splice bin files together
 * Convert hex file to bin
 * Convert bin to hex file
+* hex -> bin with user selectable starting point
 
+Do a combination of the above at once

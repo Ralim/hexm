@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"testing"
 )
@@ -21,11 +22,74 @@ func TestValidateFiles(t *testing.T) {
 	}
 	file_exists_bin.Close()
 	defer os.Remove(file_exists_bin.Name())
+	file_exists_bad, err := os.CreateTemp("", "test_*_.bad")
+	if err != nil {
+		t.Error(err)
+	}
+	file_exists_bad.Close()
+	defer os.Remove(file_exists_bad.Name())
+
+	//Basic case, both files exist and should pass
 	err = validateFiles([]string{file_exists_bin.Name(), file_exists_hex.Name()}, "nope.bin")
 	if err != nil {
 		t.Error(err)
 	}
+	//Test non existing input file
+	err = validateFiles([]string{file_exists_bin.Name(), file_exists_hex.Name(), "nothere.bin"}, "nope.bin")
+	if err == nil {
+		t.Errorf("Should raise error on input file that doesnt exist")
+	}
+	err = validateFiles([]string{file_exists_bin.Name(), file_exists_hex.Name(), file_exists_bad.Name()}, "nope.bin")
+	if err == nil {
+		t.Errorf("Should raise error on bad file name even if it exists")
+	}
+	//Testing bad output files
+	err = validateFiles([]string{file_exists_bin.Name(), file_exists_hex.Name()}, "nope.lol")
+	if err == nil {
+		t.Errorf("Should raise error on output file of unknown type")
+	}
+	//Testing output file exists case, should prompt asking for confirmation of overwrite
+	tmpfile, err := os.CreateTemp("", "mockstdin")
+	if err != nil {
+		t.Error(err)
+	}
+	defer os.Remove(tmpfile.Name()) // clean up
+	content := []byte("y\r\n")
+	if _, err := tmpfile.Write(content); err != nil {
+		log.Fatal(err)
+	}
 
+	if _, err := tmpfile.Seek(0, 0); err != nil {
+		log.Fatal(err)
+	}
+
+	oldStdin := os.Stdin
+	defer func() { os.Stdin = oldStdin }() // Restore original Stdin at end of test
+	os.Stdin = tmpfile
+	err = validateFiles([]string{file_exists_hex.Name()}, file_exists_bin.Name())
+	if err != nil {
+		t.Errorf("Should allow user to confirm overwrite")
+	}
+	content = []byte("n\r\n")
+	if _, err := tmpfile.Seek(0, 0); err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := tmpfile.Write(content); err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := tmpfile.Seek(0, 0); err != nil {
+		log.Fatal(err)
+	}
+
+	err = validateFiles([]string{file_exists_hex.Name()}, file_exists_bin.Name())
+	if err == nil {
+		t.Errorf("Should raise error if user does not acknowledge overwrite")
+	}
+	if err := tmpfile.Close(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func TestParseFileTypeAndStart(t *testing.T) {
