@@ -4,9 +4,47 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"testing"
 )
 
+func TestParseArgs(t *testing.T) {
+	//Simpler list splitter for now
+
+	var tests = []struct {
+		args    []string
+		inputs  []string
+		output  string
+		wantErr error
+	}{
+		{[]string{"1.hex", "2.hex", "3.hex"}, []string{"1.hex", "2.hex"}, "3.hex", nil},
+		{[]string{"1.hex"}, []string{}, "", fmt.Errorf("not enough files specified")},
+	}
+
+	for _, tt := range tests {
+
+		testname := fmt.Sprintf("%v", tt.args)
+		t.Run(testname, func(t *testing.T) {
+			inputs, output, err := parseArgs(tt.args)
+			if !reflect.DeepEqual(inputs, tt.inputs) {
+				t.Errorf("got %v, want %v", inputs, tt.inputs)
+			}
+			if output != tt.output {
+				t.Errorf("got %v, want %v", output, tt.output)
+			}
+			if err != tt.wantErr {
+				if err != nil && tt.wantErr != nil {
+					if err.Error() != tt.wantErr.Error() {
+						t.Errorf("got %v, want %v", err, tt.wantErr)
+					}
+				} else {
+					t.Errorf("got %v, want %v", err, tt.wantErr)
+				}
+			}
+		})
+	}
+
+}
 func TestValidateFiles(t *testing.T) {
 	//Testing input file that exists, one that doesnt
 	//Output file that does, output file that doesnt

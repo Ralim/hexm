@@ -11,7 +11,7 @@ import (
 //Splits provided args into input files and the output file
 func parseArgs(filePaths []string) ([]string, string, error) {
 	if len(filePaths) < 2 {
-		return nil, "", fmt.Errorf("not enough files specified")
+		return []string{}, "", fmt.Errorf("not enough files specified")
 	}
 	inputFiles := filePaths[:len(filePaths)-1]
 	outputFiles := filePaths[len(filePaths)-1]
