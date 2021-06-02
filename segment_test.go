@@ -121,3 +121,8 @@ func TestMergeSegments(t *testing.T) {
 	}
 
 }
+
+func TestWriteOutput(t *testing.T) {
+	//Test writing out bin and hex
+	//By converting hex back to bin too
+}

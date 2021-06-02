@@ -149,6 +149,7 @@ func TestParseFileTypeAndStart(t *testing.T) {
 		{"test.bad:1024", false, 0, fmt.Errorf("could not parse file type from test.bad:1024")},
 		{"test.bad:0x1024", false, 0, fmt.Errorf("could not parse file type from test.bad:0x1024")},
 		{"test.bad", false, 0, fmt.Errorf("could not parse file type from test.bad")},
+		{"test.bin:x", false, 0, fmt.Errorf("could not parse file type from test.bin")},
 	}
 
 	for _, tt := range tests {
