@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"reflect"
@@ -122,7 +123,58 @@ func TestMergeSegments(t *testing.T) {
 
 }
 
-func TestWriteOutput(t *testing.T) {
+func TestWriteOutputBlobToBin(t *testing.T) {
+	data := make([]byte, 1024*256)
+	rand.Read(data)
+	// Persist this to a hex file
+	tmpfile, err := os.CreateTemp("", "*_makebin.bin")
+	if err != nil {
+		t.Error(err)
+	}
+	tmpfile.Close()
+	defer os.Remove(tmpfile.Name())
+	//Write out to them
+	mem := gohex.NewMemory()
+	mem.AddBinary(0, data)
+	writeOutput(tmpfile.Name(), mem) // will have written out a hex file now
+	dataread, err := ioutil.ReadFile(tmpfile.Name())
+	if err != nil {
+		t.Error(err)
+	}
+	if !reflect.DeepEqual(dataread, data) {
+		t.Error("Output hex should convert to flat bin")
+	}
+}
+
+func TestWriteOutputBlobToHex(t *testing.T) {
 	//Test writing out bin and hex
 	//By converting hex back to bin too
+	data := make([]byte, 1024*256)
+	rand.Read(data)
+	// Persist this to a hex file
+	tmpfile, err := os.CreateTemp("", "*_makehex.hex")
+	if err != nil {
+		t.Error(err)
+	}
+	tmpfile.Close()
+	defer os.Remove(tmpfile.Name())
+	//Write out to them
+	mem := gohex.NewMemory()
+	mem.AddBinary(0, data)
+	writeOutput(tmpfile.Name(), mem) // will have written out a hex file now
+	//Convert it to bin via trusted objcopy
+	outputName := tmpfile.Name() + ".bin"
+	cmd := exec.Command("objcopy", "-O", "binary", "-I", "ihex", tmpfile.Name(), outputName)
+	err = cmd.Run()
+	if err != nil {
+		t.Error(err)
+	}
+	defer os.Remove(outputName)
+	dataread, err := ioutil.ReadFile(outputName)
+	if err != nil {
+		t.Error(err)
+	}
+	if !reflect.DeepEqual(dataread, data) {
+		t.Error("Output hex should convert to flat bin")
+	}
 }
