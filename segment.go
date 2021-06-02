@@ -4,21 +4,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	"github.com/marcinbor85/gohex"
 )
 
 func parseInputFile(path string) (*gohex.Memory, error) {
 	mem := gohex.NewMemory()
-	isHex, start, err := parseFileTypeAndStart(path)
+	isHex, start, path, err := parseFileTypeAndStart(path)
 	if err != nil {
 		return mem, err
-	}
-	//have to remove colon denoted part
-	parts := strings.Split(path, ":")
-	if len(parts) > 1 {
-		path = parts[0]
 	}
 	if isHex {
 
@@ -63,7 +57,7 @@ func mergeSegments(base, addional *gohex.Memory, userPath string) {
 }
 
 func writeOutput(outputFile string, outputMemory *gohex.Memory) error {
-	outputHex, binaryStart, err := parseFileTypeAndStart(outputFile)
+	outputHex, binaryStart, outputFile, err := parseFileTypeAndStart(outputFile)
 	if err != nil {
 		return err
 	}
