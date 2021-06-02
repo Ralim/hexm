@@ -1,11 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"log"
 	"os"
-	"strings"
 
 	"github.com/marcinbor85/gohex"
 )
@@ -85,43 +82,10 @@ func main() {
 	}
 }
 
-func userConfirmOverlap(seg gohex.DataSegment, source string) bool {
-	return userConfirm(fmt.Sprintf("Merging segment @ 0x%08X from file %v will overwrite existing data, continue ?", seg.Address, source))
-}
-
 func segmentOverlaps(seg gohex.DataSegment, seg2 gohex.DataSegment) bool {
 	if ((seg2.Address >= seg.Address) && (seg2.Address < seg.Address+uint32(len(seg.Data)))) ||
 		((seg2.Address < seg.Address) && (seg2.Address+uint32(len(seg2.Data))) > seg.Address) {
 		return true
 	}
 	return false
-}
-
-func userNumberInput(prompt string) uint64 {
-	//Take user input in various formats
-	return 0
-}
-
-func userConfirm(s string) bool {
-	reader := bufio.NewReader(os.Stdin)
-
-	for {
-		fmt.Printf("%s [Y/n]: ", s)
-
-		response, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		response = strings.ToLower(strings.TrimSpace(response))
-		if len(response) > 0 {
-			if response[0] == 'y' {
-				return true
-			} else if response[0] == 'n' {
-				return false
-			}
-		} else {
-			return true
-		}
-	}
 }
