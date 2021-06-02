@@ -33,14 +33,19 @@ func validateFiles(inputs []string, output string) error {
 
 func parseNumberString(data string) (uint32, error) {
 	//Parse the prefix of 0x,0b or none
+	if len(data) == 0 {
+		return 0, fmt.Errorf("no Input")
+	}
 	base := 10
 	number := data
-	if data[0:2] == "0x" {
-		base = 16
-		number = data[2:]
-	} else if data[0:2] == "0b" {
-		base = 2
-		number = data[2:]
+	if len(data) > 1 {
+		if data[0:2] == "0x" {
+			base = 16
+			number = data[2:]
+		} else if data[0:2] == "0b" {
+			base = 2
+			number = data[2:]
+		}
 	}
 	n, err := strconv.ParseUint(number, base, 32)
 	return uint32(n), err
