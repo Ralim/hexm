@@ -45,10 +45,6 @@ jobs:
           ${{ runner.os }}-go-
     - name: Test
       run: go test ./...
-    - name: Run linter
-      uses: golangci/golangci-lint-action@v2
-      with:
-        version: v1.29
   lint:
     runs-on: ubuntu-latest
     steps:
