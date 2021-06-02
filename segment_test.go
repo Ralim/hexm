@@ -112,5 +112,12 @@ func TestMergeSegments(t *testing.T) {
 	if !reflect.DeepEqual(mem3.GetDataSegments()[0].Data, data) {
 		t.Error("Merge should handle simple case")
 	}
+	//test order is ignored
+	mem3 = gohex.NewMemory()
+	mergeSegments(mem3, mem2, "")
+	mergeSegments(mem3, mem1, "")
+	if !reflect.DeepEqual(mem3.GetDataSegments()[0].Data, data) {
+		t.Error("Merge should handle simple case")
+	}
 
 }
