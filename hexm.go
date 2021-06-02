@@ -32,5 +32,10 @@ func main() {
 		mergeSegments(outputMemory, mem, inputFilePath)
 	}
 	// Now we want to write out the file, if its hex then we can use the hex writer, otherwise we will want to persist it out to bin
-	writeOutput(outputFile, outputMemory)
+	err = writeOutput(outputFile, outputMemory)
+	if err == nil {
+		fmt.Println("Output created")
+	} else {
+		fmt.Printf("Creating output file raised error %v", err)
+	}
 }

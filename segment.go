@@ -62,14 +62,14 @@ func mergeSegments(base, addional *gohex.Memory, userPath string) {
 	}
 }
 
-func writeOutput(outputFile string, outputMemory *gohex.Memory) {
+func writeOutput(outputFile string, outputMemory *gohex.Memory) error {
 	outputHex, binaryStart, err := parseFileTypeAndStart(outputFile)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	file, err := os.Create(outputFile)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer file.Close()
 
@@ -84,10 +84,11 @@ func writeOutput(outputFile string, outputMemory *gohex.Memory) {
 			fmt.Printf("Writing %v bytes @ %08X for section %d\r\n", len(section.Data), start, i+1)
 			_, err = file.WriteAt(section.Data, int64(start))
 			if err != nil {
-				panic(err)
+				return err
 			}
 		}
 	}
+	return nil
 }
 
 func segmentOverlaps(seg gohex.DataSegment, seg2 gohex.DataSegment) bool {
