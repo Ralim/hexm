@@ -27,7 +27,7 @@ func main() {
 		fmt.Printf("Loading file %d => %s\r\n", i+1, inputFilePath)
 		mem, err := parseInputFile(inputFilePath)
 		if err != nil {
-			panic(err)
+			fmt.Printf("Reading Input file raised error %v", err)
 		}
 		mergeSegments(outputMemory, mem, inputFilePath)
 	}
