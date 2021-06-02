@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"reflect"
 	"testing"
+
+	"github.com/marcinbor85/gohex"
 )
 
 func createTestFilePair(t *testing.T, length int, baseAddress int) (hexFile, binFile string) {
@@ -94,4 +96,21 @@ func TestParseInputFileOffsets(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMergeSegments(t *testing.T) {
+	data := make([]byte, 2048)
+	rand.Read(data)
+
+	mem1 := gohex.NewMemory()
+	mem2 := gohex.NewMemory()
+	mem3 := gohex.NewMemory()
+	mem1.AddBinary(0, data[0:1024])
+	mem2.AddBinary(1024, data[1024:])
+	mergeSegments(mem3, mem1, "")
+	mergeSegments(mem3, mem2, "")
+	if !reflect.DeepEqual(mem3.GetDataSegments()[0].Data, data) {
+		t.Error("Merge should handle simple case")
+	}
+
 }
