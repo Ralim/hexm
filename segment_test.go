@@ -115,8 +115,14 @@ func TestMergeSegments(t *testing.T) {
 	mem1 := gohex.NewMemory()
 	mem2 := gohex.NewMemory()
 	mem3 := gohex.NewMemory()
-	mem1.AddBinary(0, data[0:1024])
-	mem2.AddBinary(1024, data[1024:])
+	err = mem1.AddBinary(0, data[0:1024])
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = mem2.AddBinary(1024, data[1024:])
+	if err != nil {
+		t.Fatal(err)
+	}
 	mergeSegments(mem3, mem1, "")
 	mergeSegments(mem3, mem2, "")
 	if !reflect.DeepEqual(mem3.GetDataSegments()[0].Data, data) {
@@ -161,8 +167,14 @@ func TestMergeSegmentsOverlap(t *testing.T) {
 	mem1 := gohex.NewMemory()
 	mem2 := gohex.NewMemory()
 	mem3 := gohex.NewMemory()
-	mem1.AddBinary(0, data[0:1024])
-	mem2.AddBinary(1024, data[1024:])
+	err = mem1.AddBinary(0, data[0:1024])
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = mem2.AddBinary(1024, data[1024:])
+	if err != nil {
+		t.Fatal(err)
+	}
 	mergeSegments(mem3, mem1, "")
 	mergeSegments(mem3, mem2, "")
 	if !reflect.DeepEqual(mem3.GetDataSegments()[0].Data, data) {
@@ -186,7 +198,10 @@ func TestMergeSegmentsOverlap(t *testing.T) {
 		t.Fatal(err)
 	}
 	mem1 = gohex.NewMemory()
-	mem1.AddBinary(0, data[256:])
+	err = mem1.AddBinary(0, data[256:])
+	if err != nil {
+		t.Fatal(err)
+	}
 	mergeSegments(mem3, mem1, "")
 	if !reflect.DeepEqual(mem3.GetDataSegments()[0].Data, data) {
 		t.Fatal("Merge should reject overwrite i user opts out")
@@ -210,7 +225,10 @@ func TestWriteOutputBlobToBin(t *testing.T) {
 	defer os.Remove(tmpfile.Name())
 	//Write out to them
 	mem := gohex.NewMemory()
-	mem.AddBinary(0, data)
+	err = mem.AddBinary(0, data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	writeOutput(tmpfile.Name(), mem) // will have written out a hex file now
 	dataread, err := ioutil.ReadFile(tmpfile.Name())
 	if err != nil {
@@ -253,7 +271,10 @@ func TestWriteOutputBlobToHex(t *testing.T) {
 	defer os.Remove(tmpfile.Name())
 	//Write out to them
 	mem := gohex.NewMemory()
-	mem.AddBinary(0, data)
+	err = mem.AddBinary(0, data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	writeOutput(tmpfile.Name(), mem) // will have written out a hex file now
 	//Convert it to bin via trusted objcopy
 	outputName := tmpfile.Name() + ".bin"

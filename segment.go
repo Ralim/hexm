@@ -31,7 +31,10 @@ func parseInputFile(path string) (*gohex.Memory, error) {
 		if err != nil {
 			return mem, err
 		}
-		mem.AddBinary(start, data)
+		err = mem.AddBinary(start, data)
+		if err != nil {
+			return mem, err
+		}
 	}
 	return mem, nil
 }
