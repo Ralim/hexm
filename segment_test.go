@@ -233,7 +233,10 @@ func TestWriteOutputBlobToBin(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	writeOutput(tmpfile.Name(), mem) // will have written out a hex file now
+	err = writeOutput(tmpfile.Name(), mem) // will have written out a hex file now
+	if err != nil {
+		t.Fatal(err)
+	}
 	dataread, err := ioutil.ReadFile(tmpfile.Name())
 	if err != nil {
 		t.Fatal(err)
@@ -279,7 +282,11 @@ func TestWriteOutputBlobToHex(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	writeOutput(tmpfile.Name(), mem) // will have written out a hex file now
+	err = writeOutput(tmpfile.Name(), mem) // will have written out a hex file now
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	//Convert it to bin via trusted objcopy
 	outputName := tmpfile.Name() + ".bin"
 	cmd := exec.Command("objcopy", "-O", "binary", "-I", "ihex", tmpfile.Name(), outputName)

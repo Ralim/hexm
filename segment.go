@@ -71,7 +71,10 @@ func writeOutput(outputFile string, outputMemory *gohex.Memory) error {
 	defer file.Close()
 
 	if outputHex {
-		outputMemory.DumpIntelHex(file, 32)
+		err = outputMemory.DumpIntelHex(file, 32)
+		if err != nil {
+			return err
+		}
 	} else {
 		//We want to write a binary file starting at the specified location, and padding all gaps
 		existingSegments := outputMemory.GetDataSegments()
