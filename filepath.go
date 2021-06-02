@@ -54,16 +54,21 @@ func parseNumberString(data string) (uint32, error) {
 // parseFileTypeAndStart returns if the path specifies a hex file or not, and if its a binary if it contains a starting address
 // This parses a format of test.bin:0x5000 -> binary + start @ 0x5000
 func parseFileTypeAndStart(path string) (isHexFile bool, binaryStart uint32, err error) {
-	extension := filepath.Ext(path)
+	parts := strings.Split(path, ":")
+	baseName := path
+	if len(parts) == 2 {
+		baseName = parts[0]
+	}
+
+	extension := filepath.Ext(baseName)
 	if extension == ".hex" {
 		return true, 0, nil
 	}
-	if extension == ".bin" {
+	if extension == ".bin" && len(parts) == 1 {
 		return false, 0, nil
 	}
-	parts := strings.Split(extension, ":")
 	if len(parts) == 2 {
-		if parts[0] == ".bin" {
+		if extension == ".bin" {
 			n, err := parseNumberString(parts[1])
 			if err == nil {
 				return false, uint32(n), nil

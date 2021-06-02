@@ -2,23 +2,42 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/marcinbor85/gohex"
 )
 
 func parseInputFile(path string) (*gohex.Memory, error) {
 	mem := gohex.NewMemory()
-
-	file, err := os.Open(path)
+	isHex, start, err := parseFileTypeAndStart(path)
 	if err != nil {
 		return mem, err
 	}
-	defer file.Close()
-	err = mem.ParseIntelHex(file)
-	if err != nil {
-		return mem, err
+	//have to remove colon denoted part
+	parts := strings.Split(path, ":")
+	if len(parts) > 1 {
+		path = parts[0]
+	}
+	if isHex {
 
+		file, err := os.Open(path)
+		if err != nil {
+			return mem, err
+		}
+		defer file.Close()
+		err = mem.ParseIntelHex(file)
+		if err != nil {
+			return mem, err
+		}
+	} else {
+		//This is a binary file, so we can just load it in
+		data, err := ioutil.ReadFile(path)
+		if err != nil {
+			return mem, err
+		}
+		mem.AddBinary(start, data)
 	}
 	return mem, nil
 }
