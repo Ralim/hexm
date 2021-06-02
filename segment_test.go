@@ -19,7 +19,10 @@ func createTestFilePair(t *testing.T, length int, baseAddress int) (hexFile, bin
 		t.Fatal(err)
 	}
 	data := make([]byte, length)
-	rand.Read(data)
+	_, err = rand.Read(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	tmpfile.Write(data)
 	tmpfile.Close()
 	//Convert bin to hex
@@ -51,7 +54,7 @@ func TestParseInputFile(t *testing.T) {
 	if len(hexSegs) != len(binSegs) {
 		t.Fatalf("Should return same number of segments")
 	}
-	for i, _ := range hexSegs {
+	for i := range hexSegs {
 		if !reflect.DeepEqual(hexSegs[i], binSegs[i]) {
 			t.Fatalf("Data segments differ")
 		}
@@ -92,7 +95,7 @@ func TestParseInputFileOffsets(t *testing.T) {
 			if len(hexSegs) != len(binSegs) {
 				t.Fatalf("Should return same number of segments")
 			}
-			for i, _ := range hexSegs {
+			for i := range hexSegs {
 				if !reflect.DeepEqual(hexSegs[i], binSegs[i]) {
 					t.Fatalf("Data segments differ")
 				}
@@ -104,7 +107,10 @@ func TestParseInputFileOffsets(t *testing.T) {
 func TestMergeSegments(t *testing.T) {
 	t.Parallel()
 	data := make([]byte, 2048)
-	rand.Read(data)
+	_, err := rand.Read(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	mem1 := gohex.NewMemory()
 	mem2 := gohex.NewMemory()
@@ -147,7 +153,10 @@ func TestMergeSegmentsOverlap(t *testing.T) {
 	os.Stdin = tmpfile
 
 	data := make([]byte, 2048)
-	rand.Read(data)
+	_, err = rand.Read(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	mem1 := gohex.NewMemory()
 	mem2 := gohex.NewMemory()
@@ -188,7 +197,10 @@ func TestMergeSegmentsOverlap(t *testing.T) {
 func TestWriteOutputBlobToBin(t *testing.T) {
 	t.Parallel()
 	data := make([]byte, 1024*256)
-	rand.Read(data)
+	_, err := rand.Read(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	// Persist this to a hex file
 	tmpfile, err := os.CreateTemp("", "*_makebin.bin")
 	if err != nil {
@@ -228,7 +240,10 @@ func TestWriteOutputBlobToHex(t *testing.T) {
 	//Test writing out bin and hex
 	//By converting hex back to bin too
 	data := make([]byte, 1024*256)
-	rand.Read(data)
+	_, err := rand.Read(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	// Persist this to a hex file
 	tmpfile, err := os.CreateTemp("", "*_makehex.hex")
 	if err != nil {

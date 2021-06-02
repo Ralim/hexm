@@ -21,7 +21,10 @@ func TestMain(t *testing.T) {
 		t.Fatal(err)
 	}
 	data := make([]byte, length)
-	rand.Read(data)
+	_, err = rand.Read(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	tmpfile.Write(data)
 	tmpfile.Close()
 	//Convert bin to hex
