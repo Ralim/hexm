@@ -33,6 +33,7 @@ func createTestFilePair(t *testing.T, length int, baseAddress int) (hexFile, bin
 }
 
 func TestParseInputFile(t *testing.T) {
+	t.Parallel()
 	//create the test files
 	hexFile, binFile := createTestFilePair(t, 1024*8, 0)
 	defer os.Remove(hexFile)
@@ -58,6 +59,7 @@ func TestParseInputFile(t *testing.T) {
 }
 
 func TestParseInputFileOffsets(t *testing.T) {
+	t.Parallel()
 	//create the test files
 
 	var tests = []struct {
@@ -100,6 +102,7 @@ func TestParseInputFileOffsets(t *testing.T) {
 }
 
 func TestMergeSegments(t *testing.T) {
+	t.Parallel()
 	data := make([]byte, 2048)
 	rand.Read(data)
 
@@ -124,6 +127,7 @@ func TestMergeSegments(t *testing.T) {
 }
 
 func TestWriteOutputBlobToBin(t *testing.T) {
+	t.Parallel()
 	data := make([]byte, 1024*256)
 	rand.Read(data)
 	// Persist this to a hex file
@@ -147,6 +151,7 @@ func TestWriteOutputBlobToBin(t *testing.T) {
 }
 
 func TestWriteOutputBlobToHex(t *testing.T) {
+	t.Parallel()
 	//Test writing out bin and hex
 	//By converting hex back to bin too
 	data := make([]byte, 1024*256)

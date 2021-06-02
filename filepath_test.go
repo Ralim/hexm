@@ -10,7 +10,7 @@ import (
 
 func TestParseArgs(t *testing.T) {
 	//Simpler list splitter for now
-
+	t.Parallel()
 	var tests = []struct {
 		args    []string
 		inputs  []string
@@ -132,7 +132,7 @@ func TestValidateFiles(t *testing.T) {
 
 func TestParseFileTypeAndStart(t *testing.T) {
 	//testing that it handles basic bin and hex files correctly
-
+	t.Parallel()
 	var tests = []struct {
 		path    string
 		wantHex bool
