@@ -37,7 +37,6 @@ func userNumberInput(prompt string, defaultValue uint32) uint32 {
 			return defaultValue
 		}
 	}
-	return 0
 }
 
 func userConfirm(s string) bool {
