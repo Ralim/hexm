@@ -31,6 +31,21 @@ func validateFiles(inputs []string, output string) error {
 	return nil
 }
 
+func parseNumberString(data string) (uint32, error) {
+	//Parse the prefix of 0x,0b or none
+	base := 10
+	number := data
+	if data[0:2] == "0x" {
+		base = 16
+		number = data[2:]
+	} else if data[0:2] == "0b" {
+		base = 2
+		number = data[2:]
+	}
+	n, err := strconv.ParseUint(number, base, 32)
+	return uint32(n), err
+}
+
 // parseFileTypeAndStart returns if the path specifies a hex file or not, and if its a binary if it contains a starting address
 // This parses a format of test.bin:0x5000 -> binary + start @ 0x5000
 func parseFileTypeAndStart(path string) (isHexFile bool, binaryStart uint32, err error) {
@@ -44,17 +59,7 @@ func parseFileTypeAndStart(path string) (isHexFile bool, binaryStart uint32, err
 	parts := strings.Split(extension, ":")
 	if len(parts) == 2 {
 		if parts[0] == ".bin" {
-			//We support previx notation of 0x and 0b, otherwise assumed decimal
-			base := 10
-			number := parts[1]
-			if parts[1][0:2] == "0x" {
-				base = 16
-				number = parts[1][2:]
-			} else if parts[1][0:2] == "0b" {
-				base = 2
-				number = parts[1][2:]
-			}
-			n, err := strconv.ParseUint(number, base, 32)
+			n, err := parseNumberString(parts[1])
 			if err == nil {
 				return false, uint32(n), nil
 			}
