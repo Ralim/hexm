@@ -25,7 +25,11 @@ func TestMain(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	tmpfile.Write(data)
+	_, err = tmpfile.Write(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	tmpfile.Close()
 	//Convert bin to hex
 	outputName := tmpfile.Name() + ".hex"
