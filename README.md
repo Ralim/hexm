@@ -16,3 +16,4 @@ Merge and convert
 * Merge two hex files (with and without overlap)
 * Merge a bin and hex file
 * Convert a hex file to a binary file (Optionally set base address of the output bin file)
+* Truncate beginning of hex/bin file
