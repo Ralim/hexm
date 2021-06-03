@@ -10,4 +10,9 @@ Merge and convert
 * Convert bin to hex file
 * hex -> bin with user selectable starting point
 
-Do a combination of the above at once
+
+### Examples
+
+* Merge two hex files (with and without overlap)
+* Merge a bin and hex file
+* Convert a hex file to a binary file (Optionally set base address of the output bin file)

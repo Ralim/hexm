@@ -87,10 +87,33 @@ func writeOutput(outputFile string, outputMemory *gohex.Memory) error {
 				data = data[offset:]
 				start = 0 // As have no need to pad
 			}
+			err = checkFileStartPos(file, start)
+			if err != nil {
+				return err
+			}
 			fmt.Printf("Writing %v bytes @ %08X for section %d\r\n", len(data), start, i+1)
 			_, err = file.WriteAt(data, int64(start))
 			if err != nil {
 				return err
+			}
+		}
+	}
+	return nil
+}
+
+//checkFileStartPos Asks user to confirm if we are about to pad more than 128MB of output space
+func checkFileStartPos(file *os.File, start uint32) error {
+	filestat, err := file.Stat()
+	if err != nil {
+		return nil
+	}
+	currentFileSize := uint32(filestat.Size())
+	if start > currentFileSize {
+		padMBytes := start - currentFileSize
+		padMBytes /= 1024 * 1024
+		if padMBytes > 128 {
+			if !userConfirm(fmt.Sprintf("Output file will contain at least %d Mbytes of padding, are you sure?", padMBytes)) {
+				return fmt.Errorf("user aborted write due to padding of %v Mbytes", padMBytes)
 			}
 		}
 	}
