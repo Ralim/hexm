@@ -80,9 +80,15 @@ func writeOutput(outputFile string, outputMemory *gohex.Memory) error {
 		existingSegments := outputMemory.GetDataSegments()
 		//Write out each section
 		for i, section := range existingSegments {
+			data := section.Data
 			start := section.Address - uint32(binaryStart)
-			fmt.Printf("Writing %v bytes @ %08X for section %d\r\n", len(section.Data), start, i+1)
-			_, err = file.WriteAt(section.Data, int64(start))
+			if section.Address < binaryStart {
+				offset := int(binaryStart) - int(section.Address)
+				data = data[offset:]
+				start = 0 // As have no need to pad
+			}
+			fmt.Printf("Writing %v bytes @ %08X for section %d\r\n", len(data), start, i+1)
+			_, err = file.WriteAt(data, int64(start))
 			if err != nil {
 				return err
 			}
