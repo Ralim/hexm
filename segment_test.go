@@ -337,6 +337,7 @@ func TestWriteOutputBlobToBinOffset(t *testing.T) {
 		t.Fatal("Matching offsets should have no filler")
 	}
 }
+
 func TestWriteOutputBlobToBinOffsetPadding(t *testing.T) {
 	t.Parallel()
 	data := make([]byte, 1024*256)
@@ -345,7 +346,7 @@ func TestWriteOutputBlobToBinOffsetPadding(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Persist this to a hex file
+	// Persist this to a bin file
 	tmpfile, err := os.CreateTemp("", "*_makebin.bin")
 	if err != nil {
 		t.Fatal(err)
@@ -366,7 +367,7 @@ func TestWriteOutputBlobToBinOffsetPadding(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !reflect.DeepEqual(dataread, data) {
-		t.Fatal("Matching offsets should have no filler")
+	if !reflect.DeepEqual(dataread, data[offset:]) {
+		t.Fatal("Rebase should truncate off leading data")
 	}
 }
