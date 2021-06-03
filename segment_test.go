@@ -355,6 +355,40 @@ func TestWriteOutputBlobToBinOffsetPadding(t *testing.T) {
 	defer os.Remove(tmpfile.Name())
 	//Write out to them
 	mem := gohex.NewMemory()
+	err = mem.AddBinary(offset, data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = writeOutput(tmpfile.Name(), mem) // will have written out a hex file now
+	if err != nil {
+		t.Fatal(err)
+	}
+	dataread, err := ioutil.ReadFile(tmpfile.Name())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(dataread[offset:], data) {
+		t.Fatal("Data post padding should match")
+	}
+}
+
+func TestWriteOutputBlobToBinOffsetTruncateState(t *testing.T) {
+	t.Parallel()
+	data := make([]byte, 1024*256)
+	offset := uint32(1024)
+	_, err := rand.Read(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Persist this to a bin file
+	tmpfile, err := os.CreateTemp("", "*_makebin.bin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmpfile.Close()
+	defer os.Remove(tmpfile.Name())
+	//Write out to them
+	mem := gohex.NewMemory()
 	err = mem.AddBinary(0, data)
 	if err != nil {
 		t.Fatal(err)
